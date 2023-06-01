@@ -1,10 +1,12 @@
 # Whisper Transcribe
 
-Welcome to the Whisper Transcribe repository. This is a simple Python application that allows you to record audio and transcribes it using the Whisper ASR model by OpenAI. It uses a terminal user interface, making it easy to use.
+Welcome to the Whisper Transcribe repository. This is a simple Python
+command line application that allows you to record audio and transcribe it using one of the
+[Whisper ASR models by OpenAI](https://openai.com/research/whisper). It uses a terminal user interface, making it easy to use.
 
 ## Prerequisites
 * Python 3.10 or higher (probably works with lower versions, but not tested)
-* FFMPEG
+* ffmpeg
 
 ## Installation
 

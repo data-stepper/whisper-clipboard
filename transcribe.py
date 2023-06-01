@@ -45,7 +45,7 @@ class Recorder:
         self.recording = self.recording[: int(elapsed_time * self.fs)]
         sf.write(self.filename, self.recording, self.fs)
 
-        print(f"finished duration: {elapsed_time:.2f} seconds. ", end="")
+        print(f"finished after {elapsed_time:.2f} seconds. ", end="")
 
         self.transcribe_audio()
 
@@ -91,8 +91,8 @@ class Recorder:
 
 
 if __name__ == "__main__":
-    print("Welcome to whisper-transcribe!")
-    print("Instructions: \n")
+    print("Welcome to whisper-transcribe! \n")
+    print("Instructions:")
     print("Press 'Space' to start / stop recording.")
     print("Press 'Q', Ctrl+D or Ctrl+C to quit the application.")
     print("Transcriptions are automatically copied to clipboard.")

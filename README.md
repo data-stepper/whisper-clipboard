@@ -14,10 +14,10 @@ command line application that allows you to record audio and transcribe it using
 
 ```bash
 # Step 1: Clone the repository.
-git clone https://github.com/data-stepper/whisper-transcribe
+git clone https://github.com/data-stepper/whisper-clipboard
 
 # Step 2: cd into the cloned repository.
-cd whisper-transcribe
+cd whisper-clipboard
 
 # Step 3: Run Nix-shell to set up the environment and install all necessary packages.
 nix-shell
@@ -30,10 +30,10 @@ python transcribe.py
 
 ```bash
 # Step 1: Clone the repository.
-git clone https://github.com/data-stepper/whisper-transcribe
+git clone https://github.com/data-stepper/whisper-clipboard
 
 # Step 2: cd into the cloned repository.
-cd whisper-transcribe
+cd whisper-clipboard
 
 # Step 3: (Optional) Create a virtual environment and activate it.
 python -m venv venv

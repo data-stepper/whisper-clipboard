@@ -47,6 +47,11 @@ python transcribe.py
 
 ## Usage
 
+Start the program using
+```bash
+python transcribe.py
+```
+
 After starting the program, you will see a prompt ('>').
 
 * Press 'Space' to start recording. While recording, the terminal will display "Recording..."

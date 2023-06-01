@@ -15,8 +15,6 @@ Welcome to the Whisper Transcribe repository. This is a simple Python applicatio
 git clone https://github.com/data-stepper/whisper-transcribe
 ```
 
-Please replace `username` with the actual GitHub username.
-
 2. cd into the cloned repository:
 
 ```
@@ -43,8 +41,6 @@ python transcribe.py
 ```
 git clone https://github.com/data-stepper/whisper-transcribe
 ```
-
-Please replace `username` with the actual GitHub username.
 
 2. cd into the cloned repository:
 

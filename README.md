@@ -8,64 +8,40 @@ Welcome to the Whisper Transcribe repository. This is a simple Python applicatio
 
 ## Installation
 
-### For NixOS Users
-1. Clone the repository:
+### For NixOS Users:
 
-```
+```bash
+# Step 1: Clone the repository.
 git clone https://github.com/data-stepper/whisper-transcribe
-```
 
-2. cd into the cloned repository:
-
-```
+# Step 2: cd into the cloned repository.
 cd whisper-transcribe
-```
 
-3. Run Nix-shell:
-
-```
+# Step 3: Run Nix-shell to set up the environment and install all necessary packages.
 nix-shell
-```
 
-This will set up the environment and install all necessary packages.
-
-4. Run the Whisper Transcribe program:
-
-```
+# Step 4: Run the Whisper Transcribe program.
 python transcribe.py
 ```
 
-### For Non-NixOS Users
-1. Clone the repository:
+### For Non-NixOS Users:
 
-```
+```bash
+# Step 1: Clone the repository.
 git clone https://github.com/data-stepper/whisper-transcribe
-```
 
-2. cd into the cloned repository:
-
-```
+# Step 2: cd into the cloned repository.
 cd whisper-transcribe
-```
 
-3. (Optional) Create a virtual environment:
-
-```
+# Step 3: (Optional) Create a virtual environment and activate it.
 python -m venv venv
 source venv/bin/activate
-```
+# On Windows, activate the virtual environment with 'venv\Scripts\activate'
 
-On Windows, activate the virtual environment with `venv\Scripts\activate`
-
-4. Install the required packages:
-
-```
+# Step 4: Install the required packages.
 pip install -r requirements.txt
-```
 
-5. Run the Whisper Transcribe program:
-
-```
+# Step 5: Run the Whisper Transcribe program.
 python transcribe.py
 ```
 

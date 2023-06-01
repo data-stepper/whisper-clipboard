@@ -9,6 +9,7 @@ let
       keyboard
       pyperclip
       black
+      prompt_toolkit
     ]);
 in pkgs.mkShell {
   buildInputs = [ pythonEnv pkgs.ffmpeg ];

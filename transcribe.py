@@ -1,106 +1,98 @@
-import sys
-import termios
-import time
-import tty
-
+from time import time
 import sounddevice as sd
 import soundfile as sf
 import pyperclip
-
 import whisper
+import tempfile
+import warnings
 
-model = whisper.load_model("base", in_memory=True)
-print("Model loaded.")
+warnings.filterwarnings("ignore")
+
+from prompt_toolkit import PromptSession
+from prompt_toolkit.key_binding import KeyBindings
 
 
-def print_user_info(text: str) -> None:
-    print(text, end="\r", flush=True)
+class Recorder:
+    def __init__(self, filename: str):
+        self.filename = filename
+        self.fs = 44100  # sample rate
+        self.duration = 120  # in seconds
+        self.is_recording = False
+        self.recording = None
+        self.start_time = None
 
-
-def record_audio(filename: str) -> None:
-    duration = 60  # in seconds
-    fs = 44100  # sample rate
-
-    print_user_info(
-        "Recording audio. Press 'Space' to start / stop recording or 'q' to quit..."
-    )
-    while True:
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
         try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-            if ch == " ":
-                print_user_info("Recording...")
-                start_time = time.time()
-                recording = sd.rec(
-                    int(duration * fs), samplerate=fs, channels=1
-                )
+            self.model = whisper.load_model("base", in_memory=True)
 
-                progress_indicator = "|/-\\"
-                progress_index = 0
+        except Exception as e:
+            print("Failed to load whisper model.")
+            raise e
 
-                while True:
-                    ch = sys.stdin.read(1)
-                    if ch == " ":
-                        sd.stop()
-                        end_time = time.time()
-                        elapsed_time = end_time - start_time
+    def start_recording(self):
+        print("Recording...")
+        self.is_recording = True
+        self.start_time = time()
+        self.recording = sd.rec(
+            int(self.fs * self.duration), samplerate=self.fs, channels=1
+        )
 
-                        # Cut off any trailing zeros
-                        recording = recording[: int(elapsed_time * fs)]
+    def stop_recording(self):
+        self.is_recording = False
+        sd.stop()
+        elapsed_time = time() - self.start_time
+        self.recording = self.recording[: int(elapsed_time * self.fs)]
+        sf.write(self.filename, self.recording, self.fs)
 
-                        sf.write(filename, recording, fs)
+        print(f"Recording duration: {elapsed_time:.2f} seconds.")
 
-                        print_user_info(f"\nAudio saved as {filename}.")
-                        print_user_info(
-                            f"Recording duration: {elapsed_time:.2f} seconds."
-                        )
+        self.transcribe_audio()
 
-                        # And then transcribe the audio using whisper
-                        try:
-                            print_user_info("Transcribing audio...")
-                            r = model.transcribe(filename, temperature=0.0)
-                            transcribed_text = r["text"]
-                            print_user_info("Transcribed: \n\n")
-                            print_user_info(80 * "-")
-                            print_user_info(transcribed_text)
-                            print_user_info(80 * "-")
-                            pyperclip.copy(transcribed_text)
-                        except Exception as e:
-                            print_user_info(
-                                "Error during transcription:", str(e)
-                            )
+    def transcribe_audio(self):
+        try:
+            print("Transcribing audio...")
+            r = self.model.transcribe(self.filename, temperature=0.0)
+            transcribed_text = r["text"]
+            print("Transcribed: \n\n")
+            print(80 * "-")
+            print(transcribed_text)
+            print(80 * "-")
+            pyperclip.copy(transcribed_text)
+        except Exception as e:
+            print("Error during transcription:", str(e))
 
-                        break
+    def record_audio(self):
+        # Create key bindings
+        bindings = KeyBindings()
 
-                    # Display progress indicator
-                    sys.stdout.write(
-                        f"\rRecording... {progress_indicator[progress_index % 4]}"
-                    )
-                    sys.stdout.flush()
-                    progress_index += 1
+        @bindings.add("space")
+        def _(_):
+            if self.is_recording:
+                self.stop_recording()
+            else:
+                self.start_recording()
 
-            if ch in {"q", "Q", "c"}:
-                raise KeyboardInterrupt
+        @bindings.add("q")
+        def _(event):
+            print("Exiting application.")
+            event.app.exit()
 
-            if ch != "\n":
-                print_user_info(
-                    "Invalid input. Press 'Space' to start / stop recording or 'q' to quit..."
-                )
+        # Create a session with the key bindings
+        session = PromptSession(key_bindings=bindings)
 
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        while True:
+            try:
+                _ = session.prompt("> ")
+            except KeyboardInterrupt:
+                break
 
 
 if __name__ == "__main__":
-    try:
-        # Get a tempfile path
-        import tempfile
+    print("Welcome to whisper-transcribe!")
+    print("Instructions:")
+    print("Press 'Space' to start / stop recording.")
+    print("Press 'Q' to quit the application.")
+    print()
 
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as f:
-            record_audio(f.name)
-
-    except KeyboardInterrupt:
-        print_user_info("\nInterrupted by user.")
-        sys.exit(0)
+    with tempfile.NamedTemporaryFile(suffix=".wav") as temp:
+        recorder = Recorder(filename=temp.name)
+        recorder.record_audio()

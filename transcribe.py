@@ -90,7 +90,7 @@ class Recorder:
                 break
 
 
-if __name__ == "__main__":
+def main():
     print("Welcome to whisper-transcribe! \n")
     print("Instructions:")
     print("Press 'Space' to start / stop recording.")
@@ -101,3 +101,7 @@ if __name__ == "__main__":
     with tempfile.NamedTemporaryFile(suffix=".wav") as temp:
         recorder = Recorder(filename=temp.name)
         recorder.record_audio()
+
+
+if __name__ == "__main__":
+    main()

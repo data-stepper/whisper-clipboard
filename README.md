@@ -8,16 +8,24 @@ command line application that allows you to record audio and transcribe it using
 * Python 3.10 or higher (probably works with lower versions, but not tested)
 * ffmpeg
 
-## Installation
+## Installation from PyPI
+
+```
+pip install whisper-clipboard
+```
+And then run `transcribe` and start transcribing.
+Please make sure you have `ffmpeg` installed properly on your system (this may vary between different operating systems).
+
+## Installation using the repo
 
 ### For NixOS Users:
 
 ```bash
 # Step 1: Clone the repository.
-git clone https://github.com/data-stepper/whisper-transcribe
+git clone https://github.com/data-stepper/whisper-clipboard
 
 # Step 2: cd into the cloned repository.
-cd whisper-transcribe
+cd whisper-clipboard
 
 # Step 3: Run Nix-shell to set up the environment and install all necessary packages.
 nix-shell
@@ -30,10 +38,10 @@ python transcribe.py
 
 ```bash
 # Step 1: Clone the repository.
-git clone https://github.com/data-stepper/whisper-transcribe
+git clone https://github.com/data-stepper/whisper-clipboard
 
 # Step 2: cd into the cloned repository.
-cd whisper-transcribe
+cd whisper-clipboard
 
 # Step 3: (Optional) Create a virtual environment and activate it.
 python -m venv venv

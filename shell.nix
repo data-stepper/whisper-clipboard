@@ -5,8 +5,6 @@ let
     with ps; [
       openai-whisper
       sounddevice
-      soundfile
-      keyboard
       pyperclip
       black
       prompt_toolkit

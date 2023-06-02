@@ -1,17 +1,21 @@
-from os import path
+from pathlib import Path
 
 from setuptools import setup
 
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
+this_directory = Path(__file__).resolve().parent
+
+with open(this_directory / "README.md", encoding="utf-8") as f:
     long_description = f.read()
 
-with open("requirements.txt") as f:
+with open(this_directory / "requirements.txt") as f:
     requirements = f.read().splitlines()
+
+# Rest of your setup.py code...
+
 
 setup(
     name="whisper-clipboard",
-    version="0.1.3",
+    version="0.1.4",
     description="A basic TUI for transcribing audio to your clipboard using OpenAI's whisper models.",
     long_description=long_description,
     long_description_content_type="text/markdown",

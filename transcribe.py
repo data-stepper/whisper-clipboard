@@ -1,34 +1,69 @@
 #! /usr/bin/env python3
-import tempfile
-import warnings
-from time import time
 
-import pyperclip
-import sounddevice as sd
-import soundfile as sf
-import whisper
+import warnings
 
 warnings.filterwarnings("ignore")
 
+import tempfile
+from time import time
+
+try:
+    import pyperclip
+except ImportError:
+    raise ImportError(
+        "pyperclip package not found. Please reinstall pyperclip to use this script."
+    )
+
+try:
+    import sounddevice as sd
+except ImportError:
+    raise ImportError(
+        "sounddevice package not found. Please reinstall sounddevice to use this script."
+    )
+
+try:
+    import whisper
+except ImportError:
+    raise ImportError(
+        "whisper package not found. Please reinstall whisper to use this script."
+    )
+
+import numpy as np
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 
 
 class Recorder:
-    def __init__(self, filename: str):
-        self.filename = filename
-        self.fs = 44100  # sample rate
-        self.duration = 120  # in seconds
+    """Recorder class for audio recording."""
+
+    def __init__(
+        self,
+        fs: int = 16_000,
+        duration: int = 120,
+        model_name: str = "base",
+    ):
+        """Initialize the Recorder object.
+
+        Args:
+            fs (int): The sample rate in kHz. Default is 16 kHz.
+            duration (int): The maximum duration of the recording in seconds. Default is 120 seconds.
+            model_name (str): The name of the model to load. Default is "base".
+        """
+        self.fs = fs
+        self.duration = duration
         self.is_recording = False
         self.recording = None
         self.start_time = None
 
         try:
-            self.model = whisper.load_model("base", in_memory=True)
-
+            self.model = whisper.load_model(model_name, in_memory=True)
         except Exception as e:
-            print("Failed to load whisper model.")
-            raise e
+            error_message = (
+                f"Failed to load whisper model '{model_name}'. Make sure the model is available and correctly configured. "
+                f"Available models are 'tiny', 'base', 'small', 'large'"
+            )
+            print(error_message)
+            raise type(e)(error_message).with_traceback(e.__traceback__)
 
     def start_recording(self):
         print("Recording ", end="")
@@ -43,7 +78,6 @@ class Recorder:
         sd.stop()
         elapsed_time = time() - self.start_time
         self.recording = self.recording[: int(elapsed_time * self.fs)]
-        sf.write(self.filename, self.recording, self.fs)
 
         print(f"finished after {elapsed_time:.2f} seconds. ", end="")
 
@@ -51,11 +85,10 @@ class Recorder:
 
     def transcribe_audio(self):
         try:
-            print("Transcribing audio now...")
-            r = self.model.transcribe(self.filename, temperature=0.0)
+            r = self.model.transcribe(self.recording[:, 0], temperature=0.0)
             transcribed_text = str(r["text"]).rstrip().lstrip()
 
-            print("Transcribed: \n")
+            print("Transcribed audio: ")
             print(80 * "=")
             print(transcribed_text)
             print(80 * "=")
@@ -63,7 +96,7 @@ class Recorder:
         except Exception as e:
             print("Error during transcription:", str(e))
 
-    def record_audio(self):
+    def record_and_transcribe(self):
         # Create key bindings
         bindings = KeyBindings()
 
@@ -75,7 +108,7 @@ class Recorder:
                 self.start_recording()
 
         @bindings.add("q")
-        def _(event):
+        def _(_):
             print("Exiting application.")
             raise KeyboardInterrupt
 
@@ -98,9 +131,8 @@ def main():
     print("Transcriptions are automatically copied to clipboard.")
     print()
 
-    with tempfile.NamedTemporaryFile(suffix=".wav") as temp:
-        recorder = Recorder(filename=temp.name)
-        recorder.record_audio()
+    recorder = Recorder()
+    recorder.record_and_transcribe()
 
 
 if __name__ == "__main__":

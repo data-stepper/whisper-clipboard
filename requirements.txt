@@ -1,6 +1,5 @@
 openai-whisper
 sounddevice
-soundfile
 pyperclip
 black
 prompt_toolkit

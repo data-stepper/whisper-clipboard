@@ -5,7 +5,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import tempfile
-from time import time
+from time import monotonic as time
 
 try:
     import pyperclip
@@ -41,6 +41,7 @@ class Recorder:
         fs: int = 16_000,
         duration: int = 120,
         model_name: str = "base",
+        ewm_alpha: float = 1 / 20,
     ):
         """Initialize the Recorder object.
 
@@ -54,6 +55,20 @@ class Recorder:
         self.is_recording = False
         self.recording = None
         self.start_time = None
+        self.ewma_wpm: float = None
+        self.ewm_alpha: float = ewm_alpha
+        self.wpm_languages: set = {
+            "en",
+            "de",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pl",
+            "pt",
+            "ru",
+            "tr",
+        }
 
         try:
             self.model = whisper.load_model(model_name, in_memory=True)
@@ -74,27 +89,65 @@ class Recorder:
         )
 
     def stop_recording(self):
+        print("stopped. ", end="")
         self.is_recording = False
         sd.stop()
         elapsed_time = time() - self.start_time
         self.recording = self.recording[: int(elapsed_time * self.fs)]
 
-        print(f"finished after {elapsed_time:.2f} seconds. ", end="")
+        print(f"Recorded {elapsed_time:.2f} seconds. ", end="", flush=True)
 
         self.transcribe_audio()
 
     def transcribe_audio(self):
         try:
+            transcription_start_time = time()
             r = self.model.transcribe(self.recording[:, 0], temperature=0.0)
-            transcribed_text = str(r["text"]).rstrip().lstrip()
 
-            print("Transcribed audio: ")
+            # And process the output
+            language = r["language"]
+
+            text: str = "\n".join((f["text"].lstrip() for f in r["segments"]))
+
+            time_to_transcribe: float = time() - transcription_start_time
+            total_time_elapsed: float = time() - self.start_time
+
+            transcribed_text: str = str(text).rstrip().lstrip()
+
+            # Print the elapsed time and calculate the WPM (words per minute)
+            if language in self.wpm_languages:
+                wpm: float = float(
+                    len(transcribed_text.split()) / (total_time_elapsed / 60)
+                )
+
+                # And recalc the EWMA
+                if self.ewma_wpm is None:
+                    self.ewma_wpm = wpm
+
+                else:
+                    self.ewma_wpm = (
+                        self.ewm_alpha * wpm
+                        + (1 - self.ewm_alpha) * self.ewma_wpm
+                    )
+
+                additional_info: str = (
+                    f"WPM: {wpm:.2f} EWMA WPM: {self.ewma_wpm:.2f}"
+                )
+
+            else:
+                additional_info: str = (
+                    f"WPM not calculated for language '{language}'"
+                )
+
+            summary = f"Transcribed in {time_to_transcribe:.2f}s, total :{total_time_elapsed:.2f}s {additional_info}"
+            print(summary)
+
             print(80 * "=")
             print(transcribed_text)
-            print(80 * "=")
+            print(80 * "=", end="\n\n\n")
             pyperclip.copy(transcribed_text)
         except Exception as e:
-            print("Error during transcription:", str(e))
+            print(f"Error during transcription: \n\n{str(e)}")
 
     def record_and_transcribe(self):
         # Create key bindings

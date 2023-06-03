@@ -1,11 +1,15 @@
 #! /usr/bin/env python3
 
+from typing import NamedTuple
 import warnings
 
 warnings.filterwarnings("ignore")
 
 import tempfile
 from time import monotonic as time
+from textwrap import dedent
+from pathlib import Path
+from json import dumps, loads
 
 try:
     import pyperclip
@@ -49,12 +53,16 @@ class Recorder:
             fs (int): The sample rate in kHz. Default is 16 kHz.
             duration (int): The maximum duration of the recording in seconds. Default is 120 seconds.
             model_name (str): The name of the model to load. Default is "base".
+            ewm_alpha (float): The alpha value for the EWMA of the WPM. Default is 1/20.
+
         """
+
         self.fs = fs
         self.duration = duration
         self.is_recording = False
         self.recording = None
         self.start_time = None
+
         self.ewma_wpm: float = None
         self.ewm_alpha: float = ewm_alpha
         self.wpm_languages: set = {
@@ -75,7 +83,8 @@ class Recorder:
         except Exception as e:
             error_message = (
                 f"Failed to load whisper model '{model_name}'. Make sure the model is available and correctly configured. "
-                f"Available models are 'tiny', 'base', 'small', 'large'"
+                f"Available models are 'tiny', 'base', 'small', 'medium' and 'large'. "
+                f"When using whisper-transcribe for the first time, you need to download the models first. "
             )
             print(error_message)
             raise type(e)(error_message).with_traceback(e.__traceback__)
@@ -131,15 +140,13 @@ class Recorder:
                     )
 
                 additional_info: str = (
-                    f"WPM: {wpm:.2f} EWMA WPM: {self.ewma_wpm:.2f}"
+                    f"WPM {wpm:.2f} EWMA WPM {self.ewma_wpm:.2f}"
                 )
 
             else:
-                additional_info: str = (
-                    f"WPM not calculated for language '{language}'"
-                )
+                additional_info: str = ""
 
-            summary = f"Transcribed in {time_to_transcribe:.2f}s, total :{total_time_elapsed:.2f}s {additional_info}"
+            summary = f"Transcribed in {time_to_transcribe:.2f}s, total {total_time_elapsed:.2f}s {additional_info}"
             print(summary)
 
             print(80 * "=")
@@ -153,6 +160,7 @@ class Recorder:
         # Create key bindings
         bindings = KeyBindings()
 
+        # The start / stop command
         @bindings.add("space")
         def _(_):
             if self.is_recording:
@@ -160,6 +168,7 @@ class Recorder:
             else:
                 self.start_recording()
 
+        # To quit the application
         @bindings.add("q")
         def _(_):
             print("Exiting application.")
@@ -177,12 +186,27 @@ class Recorder:
 
 
 def main():
-    print("Welcome to whisper-transcribe! \n")
-    print("Instructions:")
-    print("Press 'Space' to start / stop recording.")
-    print("Press 'Q', Ctrl+D or Ctrl+C to quit the application.")
-    print("Transcriptions are automatically copied to clipboard.")
-    print()
+    info_string = dedent(
+        """
+        Welcome to whisper-transcribe! 
+
+        Instructions:
+            Press 'Space' to start / stop recording.
+            Press 'Q', Ctrl+D or Ctrl+C to quit the application.
+
+            Transcriptions are automatically copied to your clipboard.
+            Your average WPM (Words per minute) is also calculated for relevant languages.
+            A rolling average of your WPM is also shown which gives you an idea of your average WPM.
+            Fast typists may type at 70 WPM, with whisper-transcribe you can easily achieve 90+ WPM.
+            The calculated WPM is measured from the start of the recording to the end of the transcription.
+
+            whisper-transcribe works locally and never sends your recordings anywhere.
+
+        Ready to speak your mind?
+
+    """
+    )
+    print(info_string)
 
     recorder = Recorder()
     recorder.record_and_transcribe()

@@ -84,7 +84,7 @@ class Recorder:
             error_message = (
                 f"Failed to load whisper model '{model_name}'. Make sure the model is available and correctly configured. "
                 f"Available models are 'tiny', 'base', 'small', 'medium' and 'large'. "
-                f"When using whisper-transcribe for the first time, you need to download the models first. "
+                f"When using whisper-clipboard for the first time, you need to download the models first. "
             )
             print(error_message)
             raise type(e)(error_message).with_traceback(e.__traceback__)
@@ -188,7 +188,7 @@ class Recorder:
 def main():
     info_string = dedent(
         """
-        Welcome to whisper-transcribe! 
+        Welcome to whisper-clipboard! 
 
         Instructions:
             Press 'Space' to start / stop recording.
@@ -197,10 +197,10 @@ def main():
             Transcriptions are automatically copied to your clipboard.
             Your average WPM (Words per minute) is also calculated for relevant languages.
             A rolling average of your WPM is also shown which gives you an idea of your average WPM.
-            Fast typists may type at 70 WPM, with whisper-transcribe you can easily achieve 90+ WPM.
+            Fast typists may type at 70 WPM, with whisper-clipboard you can easily achieve 90+ WPM.
             The calculated WPM is measured from the start of the recording to the end of the transcription.
 
-            whisper-transcribe works locally and never sends your recordings anywhere.
+            whisper-clipboard works locally and never sends your recordings anywhere.
 
         Ready to speak your mind?
 

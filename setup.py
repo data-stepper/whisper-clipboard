@@ -15,7 +15,7 @@ with open(this_directory / "requirements.txt") as f:
 
 setup(
     name="whisper-clipboard",
-    version="0.2.0",
+    version="0.2.1",
     description="A basic TUI for transcribing audio to your clipboard using OpenAI's whisper models.",
     long_description=long_description,
     long_description_content_type="text/markdown",

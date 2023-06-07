@@ -13,6 +13,6 @@ in pkgs.mkShell {
   buildInputs = [ pythonEnv pkgs.ffmpeg ];
   shellHook = ''
     echo "Using python executable: $(which python)"
-    zsh
+    zsh -c "python transcribe.py"
   '';
 }

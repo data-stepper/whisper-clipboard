@@ -1,6 +1,6 @@
 # Whisper Clipboard
 
-Welcome to the Whisper Transcribe repository. This is a simple Python
+Welcome to the Whisper Clipboard repository. This is a simple Python
 command line application that allows you to record audio and transcribe it using one of the
 [Whisper ASR models by OpenAI](https://openai.com/research/whisper). It uses a terminal user interface, making it easy to use.
 

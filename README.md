@@ -1,4 +1,4 @@
-# Whisper Transcribe
+# Whisper Clipboard
 
 Welcome to the Whisper Transcribe repository. This is a simple Python
 command line application that allows you to record audio and transcribe it using one of the
